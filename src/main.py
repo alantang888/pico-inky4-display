@@ -9,7 +9,7 @@ from update_display import *
 
 CO2 = 'co2'
 RAIN = 'rain'
-SLEEP_SEC = 300
+SLEEP_SEC = 600
 
 
 HA_BASE_URL = 'http://homeassistant.lan:8123/'
@@ -36,6 +36,7 @@ def get_data_and_update(source, display):
     
     print(f'Got CO2 is {co2_ppm}, rain is {rain_mm}')
     
+    display.clear()
     display.update_co2(co2_ppm)
     # TODO: Should update multiple entities on display
     # display.update_rain(rain_mm)

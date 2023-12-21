@@ -14,6 +14,35 @@ except:
 class InkyFrame4():
     def __init__(self):
         self._display = PicoGraphics(display=DISPLAY_INKY_FRAME_4)
+        self._last_co2_ppm = 0
+        self._x, self._y = self._display.get_bounds()
+        self._co2_right_arrow_polygon = [
+            (475, 75),
+            (575, 75),
+            (575, 25),
+            (625, 100),
+            (575, 175),
+            (575, 125),
+            (475, 125),
+        ]
+        self._co2_up_arrow_polygon = [
+            (525, 175),
+            (525, 75),
+            (475, 75),
+            (550, 25),
+            (625, 75),
+            (575, 75),
+            (575, 175),
+        ]
+        self._co2_down_arrow_polygon = [
+            (525, 25),
+            (525, 125),
+            (475, 125),
+            (550, 175),
+            (625, 125),
+            (575, 125),
+            (575, 25),
+        ]
         
     def update_co2(self, co2_ppm):
         _co2_ppm = int(co2_ppm)
@@ -28,17 +57,39 @@ class InkyFrame4():
             text = inky_frame.YELLOW
         
         self._display.set_pen(blackground)
-        self._display.rectangle(0, 0, 640, 200)
+        self._display.rectangle(0, 0, 460, 200)
         self._display.set_pen(text)
         self._display.set_font('bitmap8')
         self._display.text('CO2', 20, 20, scale=4)
-        self._display.text('ppm', 540, 140, scale=4)
-        self._display.set_font('bitmap14_outline')
-        self._display.text(co2_ppm, 100, 55, scale=8)
+        self._display.text('ppm', 390, 140, scale=4)
+        self._display.set_font('serif')
+        self._display.set_thickness(3)
+        self._display.text(co2_ppm, 75, 100, scale=4)
+        
+        if self._last_co2_ppm != 0:
+            change_rator = abs(_co2_ppm - self._last_co2_ppm) / self._last_co2_ppm
+            if _co2_ppm - self._last_co2_ppm < 0:
+                arrow_colour = inky_frame.GREEN
+                arrow = self._co2_down_arrow_polygon
+            elif change_rator <= 0.02:
+                arrow_colour = inky_frame.YELLOW
+                arrow = self._co2_right_arrow_polygon
+            else:
+                arrow_colour = inky_frame.RED
+                arrow = self._co2_up_arrow_polygon
+            self._display.set_pen(arrow_colour)
+            self._display.polygon(arrow)
+            
+        self._last_co2_ppm = _co2_ppm
     
     def update_rain(self, rain_mm):
         # TODO: Need implement
         pass
+    
+    def clear(self):
+        self._display.set_pen(inky_frame.WHITE)
+        self._display.clear()
+        
         
     
     def update(self):
