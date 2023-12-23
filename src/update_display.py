@@ -51,7 +51,7 @@ class InkyFrame4():
             text = inky_frame.WHITE
         elif _co2_ppm < 3000:
             blackground = inky_frame.YELLOW
-            text = inky_frame.RED
+            text = inky_frame.BLUE
         else:
             blackground = inky_frame.RED
             text = inky_frame.YELLOW
