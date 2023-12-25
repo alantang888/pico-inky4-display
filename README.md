@@ -2,6 +2,8 @@ Add `src/secrets.py` file with entry:
 - WIFI_SSID
 - WIFI_PASSWD
 - HA_API_KEY
+- GUEST_WIFI_SSID
+- GUEST_WIFI_PASSWD
 
 Copy [network_manager.py] to `src/lib/` directory.
 
