@@ -1,4 +1,5 @@
 from picographics import PicoGraphics, DISPLAY_INKY_FRAME_4, DISPLAY_PICO_EXPLORER
+import qrcode
 
 try:
     import inky_frame
@@ -10,12 +11,33 @@ except:
     led_busy_on = lambda: None
     led_busy_off = lambda: None
 
+# QR code related copy from pimoroni library
+qr = qrcode.QRCode()
+
+
+def measure_qr_code(size, code):
+    w, h = code.get_size()
+    module_size = int(size / w)
+    return module_size * w, module_size
+
+
+def draw_qr_code(graphics, ox, oy, size, code):
+    size, module_size = measure_qr_code(size, code)
+    graphics.set_pen(1)
+    graphics.rectangle(ox, oy, size, size)
+    graphics.set_pen(0)
+    for x in range(size):
+        for y in range(size):
+            if code.get_module(x, y):
+                graphics.rectangle(ox + x * module_size, oy + y * module_size, module_size, module_size)
+
 
 class InkyFrame4():
     def __init__(self):
         self._display = PicoGraphics(display=DISPLAY_INKY_FRAME_4)
         self._last_co2_ppm = 0
         self._x, self._y = self._display.get_bounds()
+        self._bottom_text_start_y = self._y-25
         self._co2_right_arrow_polygon = [
             (475, 75),
             (575, 75),
@@ -85,6 +107,45 @@ class InkyFrame4():
     def update_rain(self, rain_mm):
         # TODO: Need implement
         pass
+    
+    # TODO: Not tested yet
+    def print_night_heater(self):
+        self._display.set_pen(inky_frame.GREEN)
+        self._display.set_font('cursive')
+        self._display.set_thickness(5)
+        self._display.text('Night Heater is On!', 20, 20, scale=8)
+    
+    # TODO: Not tested yet
+    def print_night_heater_got_error(self):
+        self._display.set_pen(inky_frame.RED)
+        self._display.set_font('cursive')
+        self._display.set_thickness(5)
+        self._display.text('Trigger "Night Heater" got error!', 20, 20, scale=8)
+    
+    def print_guest_wifi_info(self, guest_ssid, guest_password, disable_time):
+        self._display.set_pen(inky_frame.BLACK)
+        self._display.set_font('bitmap8')
+        self._display.text(f'Will disabled at {disable_time[0]}-{disable_time[1]}-{disable_time[2]} {disable_time[3]}:{disable_time[4]} (UTC)', 20, self._bottom_text_start_y-105)
+        self._display.line(0, self._bottom_text_start_y-85, self._x, self._bottom_text_start_y-85)
+        self._display.set_font('serif_italic')
+        self._display.set_thickness(2)
+        self._display.text(f'SSID: {guest_ssid}', 20, self._bottom_text_start_y-64, scale=1)
+        self._display.text(f'Password: {guest_password}', 20, self._bottom_text_start_y-24, scale=1)
+        guest_wifi_qr_str = f'WIFI:S:{guest_ssid};T:WPA;P:{guest_password};;'
+        qr.set_text(guest_wifi_qr_str)
+        draw_qr_code(self._display, 190, 15, 260, qr)
+        
+    def print_guest_wifi_got_error(self):
+        self._display.set_pen(inky_frame.RED)
+        self._display.set_font('cursive')
+        self._display.set_thickness(5)
+        self._display.text('Trigger "Guest Wifi" got error!', 20, 20, scale=8)
+    
+    def print_bottom_text(self):
+        self._display.set_pen(inky_frame.BLACK)
+        self._display.line(0, self._bottom_text_start_y, self._x, self._bottom_text_start_y)
+        self._display.set_font('bitmap8')
+        self._display.text('A: Night Heater | B: Guest Wifi', 10, self._bottom_text_start_y+7)
     
     def clear(self):
         self._display.set_pen(inky_frame.WHITE)
