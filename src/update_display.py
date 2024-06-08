@@ -113,14 +113,14 @@ class InkyFrame4():
         self._display.set_pen(inky_frame.GREEN)
         self._display.set_font('cursive')
         self._display.set_thickness(5)
-        self._display.text('Night Heater is On!', 20, 20, scale=8)
+        self._display.text('Night Heater is On!', 20, 30, scale=2)
     
     # TODO: Not tested yet
     def print_night_heater_got_error(self):
         self._display.set_pen(inky_frame.RED)
         self._display.set_font('cursive')
-        self._display.set_thickness(5)
-        self._display.text('Trigger "Night Heater" got error!', 20, 20, scale=8)
+        self._display.set_thickness(2)
+        self._display.text('Trigger "Night Heater" got error!', 20, 20, scale=1)
     
     def print_guest_wifi_info(self, guest_ssid, guest_password, disable_time):
         self._display.set_pen(inky_frame.BLACK)
