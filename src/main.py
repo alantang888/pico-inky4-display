@@ -1,5 +1,6 @@
 import time
 import asyncio
+import machine
 
 import inky_frame
 from lib.network_manager import NetworkManager
@@ -72,12 +73,23 @@ def sleep():
     time.sleep(time.mktime(next_normal_update))
     
     
+def check_not_update_too_long(t):
+    # If didn't update for 5 mins. That should have issue
+    print(f'timer happened at {time.gmtime()}, t: {t}')
+    if time.gmtime(time.time()-300) > next_normal_update:
+        machine.reset()
+        
+    
+    
 # For USB powered use. So only time.sleep, not using RTC. If battery, should use deep sleep. But need also change Wifi logic?
 def main():
     global next_normal_update
     
     ha = HomeAssistantApi(HA_BASE_URL, secrets.HA_API_KEY, HA_ENTITIES)
     display = InkyFrame4()
+    
+    health_checker_timer = machine.Timer()
+    health_checker_timer.init(period=600000, mode=machine.Timer.PERIODIC, callback=check_not_update_too_long)
     
     print('Start main loop.')
 
